@@ -1,0 +1,54 @@
+# he-uav-mapping
+ 
+Database and web dashboard for a systematic mapping study on homomorphic encryption (HE) in unmanned aerial vehicles (UAVs): applications, schemes, and costs.
+ 
+## About the study
+ 
+This repository supports the systematic mapping study *Homomorphic encryption in unmanned aerial vehicles: a systematic mapping of applications, schemes, and costs*, developed as part of a undergraduate thesis in Computer Science at ICMC-USP (Instituto de Ciências Matemáticas e de Computação, Universidade de São Paulo).
+ 
+The data extracted from each primary study answers seven research questions:
+ 
+| RQ | Topic |
+| --- | --- |
+| RQ1 | Research type |
+| RQ2 | UAV application and problem addressed |
+| RQ3 | HE schemes, libraries, and parameters |
+| RQ4 | Validation approach |
+| RQ5 | Where and when each HE operation runs (location and flight phase) |
+| RQ6 | Reported costs and baselines |
+| RQ7 | Threat model: adversaries, their behavior, and protected data |
+ 
+The goal is to load the extraction data into a relational database and explore it through a web dashboard.
+ 
+## Repository structure
+ 
+```
+he-uav-mapping/
+├── docs/
+├── db/
+└── dashboard/
+```
+ 
+## Data model
+ 
+The model was designed in two steps, following the extended entity-relationship notation (ME-RX) and the ER-to-relational mapping algorithm.
+ 
+- **Conceptual model:** [`docs/er/MSL_DER.drawio`](docs/er/MSL_DER.drawio). `Study` sits at the center, and each RQ is a colored region of the diagram.
+- **Relational model:** [`docs/relational/`](docs/relational/). It has 26 tables and 26 foreign keys:
+| Group | Tables |
+| --- | --- |
+| Study | `Study`, `StudyAuthor` |
+| RQ1 | `ClassifiedAs`, `ResearchType` |
+| RQ2 | `Addresses`, `UAVApplication` |
+| RQ3 | `SchemeAdoption`, `PlainTextEncode`, `HEScheme`, `Library` |
+| RQ4 | `ValidatedBy`, `ValidationApproach` |
+| RQ5 | `OperationExecution`, `ExecutedAt`, `HEOperation`, `Location`, `Phase` |
+| RQ6 | `CostReport`, `ComparesWith`, `CostType`, `BaselineType` |
+| RQ7 | `Encrypts`, `AdversaryModel`, `Targets`, `DataCategory`, `AdversaryParty` |
+ 
+Each option list from the extraction form is a catalog table (for example, `ResearchType` or `Location`), so a study can only be linked to valid options.
+ 
+## Author
+ 
+Amanda Kasat, ICMC-USP, Laboratory of Security in Critical Embedded Systems (LSEC).
+Advisor: Prof. Dr. Kalinka Regina Lucas Jaquie Castelo Branco.
