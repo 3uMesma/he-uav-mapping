@@ -11,12 +11,12 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./db/create_tables.sql:/docker-entrypoint-initdb.d/01_create_tables.sql:ro
+      - ./db:/docker-entrypoint-initdb.d:ro   # roda 01_, 02_, ... em ordem
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
-
+ 
 volumes:
   pgdata:

@@ -1,0 +1,16 @@
+Name,Family
+Paillier,PHE
+DGK,PHE
+Joye-Libert,PHE
+LinHAE,PHE
+RAHE,PHE
+BGN,SHE
+NTRU,SHE
+HE1,SHE
+HE1N,SHE
+BFV,FHE
+CKKS,FHE
+TFHE,FHE
+Lattice-based FHE (Gentry-style),FHE
+Not reported (generic FHE),FHE
+Not reported (generic HE),Not determined

@@ -1,0 +1,41 @@
+StudyId,Study,Scheme,LibraryName,LibraryVersion,Encoding
+1,Intelligent Task Offloading Decisions for Enhanced Swarm-Based UAV Surveillance,BFV,,,
+2,Securing Smart UAV Delivery Systems Using Zero Trust Principle-Driven Blockchain Architecture,Not reported (generic HE),,,
+3,Privacy-Preserving Control of Video Transmissions for Drone-based Intelligent Transportation Systems,BFV,Microsoft SEAL,2.3.1,Not reported
+4,A Privacy Preserving Federated Learning-Based Authentication Scheme for Internet of Drones Systems,Not reported (generic HE),,,
+5,FLAS: A Federated Learning Framework for Adaptive Security in Edge-Driven UAV Networks,Not reported (generic HE),,,
+6,LaDFL: Lattice-based Decentralized Federated Learning for Drone Authentication,BFV,Not reported,Not reported,Fixed-point scaling
+7,Efficient and Accurate Privacy-Preserving Task Allocation for Unmanned Aerial Vehicle-Based Mobile Crowdsensing,Paillier,Not reported,Not reported,Fixed-point scaling
+8,Privacy-Preserving Drone Navigation Through Homomorphic Encryption for Collision Avoidance,Paillier,Java HE library by Quijano and Akkaya,Not reported,Integers (no conversion)
+8,Privacy-Preserving Drone Navigation Through Homomorphic Encryption for Collision Avoidance,DGK,Java HE library by Quijano and Akkaya,Not reported,Binary or bitwise encoding
+9,Homomorphic Encryption Reference Model for Mobile Cyber Physical Systems,Not reported (generic HE),,,
+10,Secure Coordinate Rotation in Embedded Systems Using Homomorphic Encryption: Implementation and Evaluation on the AI-Saqr Platform,Joye-Libert,Custom implementation,Not reported,Fixed-point scaling
+11,Secure MPC-Based Path Following for UAS in Adverse Network Environment,Paillier,Not reported,Not reported,Fixed-point scaling
+12,Enabling Privacy-Preserving and Verifiable AGI in Low-Altitude Economy Networks,BGN,pypbc,Not reported,Fixed-point scaling
+13,A privacy-preserving data collection and processing framework for third-party UAV services,TFHE,TFHE library,Not reported,Integers (no conversion)
+14,Verifiable and Privacy-Preserving Cooperative Federated Learning in UAV-Assisted Vehicular Networks,Paillier,,,
+15,Toward a Secure Drone System: Flying with Real-Time Homomorphic Authenticated Encryption,LinHAE,Custom implementation,Not reported,Fixed-point scaling
+16,Secured aerial photography using Homomorphic Encryption,NTRU,tbuktu/ntru,Not reported,Integers (no conversion)
+17,Secure and Efficient UAV-Based Face Detection via Homomorphic Encryption and Edge Computing,CKKS,TenSEAL,Not reported,Direct real-valued encoding (CKKS); SIMD packing
+18,Security-Aware Adaptive Offloading for Resource-Constrained UAV Systems Using Homomorphic Encryption,CKKS,TenSEAL,0.3.16,Direct real-valued encoding (CKKS)
+19,Secure Estimation Using Partially Homomorphic Encryption for Unmanned Aerial Systems in the Presence of Eavesdroppers,CKKS,TenSEAL,0.3.16,Direct real-valued encoding (CKKS)
+20,Protecting Attacks on Unmanned Aerial Vehicles using Homomorphic Encryption,Paillier,Not reported,Not reported,Fixed-point scaling
+21,Optimizing federated learning with weighted aggregation in aerial and space networks,Not reported (generic FHE),Not reported,Not reported,Not reported
+22,Securing FANET using federated learning through homomorphic matrix factorization,Not reported (generic HE),HElib,Not reported,Not reported
+23,SSDBFAN: Scalable and Secure Cluster-Based Data Aggregation with Blockchain for Flying Ad Hoc Networks,Lattice-based FHE (Gentry-style),NFLlib,Not reported,Not reported
+24,HEDrone: Privacy-Preserving Proof-of-Alibi for Drone Compliance Based on Homomorphic Encryption,HE1,,,
+24,HEDrone: Privacy-Preserving Proof-of-Alibi for Drone Compliance Based on Homomorphic Encryption,HE1N,,,
+25,AERO-GUARD: A Post-Quantum Mutual Authentication Drone Protocol with Homomorphic Encryption for Secure Road Surveillance in Smart Cities,HE1,,,
+25,AERO-GUARD: A Post-Quantum Mutual Authentication Drone Protocol with Homomorphic Encryption for Secure Road Surveillance in Smart Cities,HE1N,,,
+26,Event-triggered and privacy-preserving control for prescribed-time formation of networked unmanned aerial vehicles,Paillier,Not reported,Not reported,Not reported
+27,Distributed formation control for UAV-USV heterogeneous systems with secure and privacy-preserving ability,Paillier,Not reported,Not reported,Not reported
+28,A Privacy-Preserving Edge Inference Framework for Low-Altitude UAV Swarm Intelligence,Not reported (generic FHE),,,
+29,SAC-based UAV mobile edge computing for energy minimization and secure data transmission,Paillier,,,
+30,Privacy-preserving distributed optimization for multi-UAV systems with threshold homomorphic encryption,CKKS,TenSEAL,Not reported,Direct real-valued encoding (CKKS)
+31,A Reliable and Secure Cluster-Routing Framework for Drone-Assisted Disaster Management in Smart Cities,Paillier,,,
+32,Secure and Verifiable Edge-Federated Learning with Homomorphic Encryption and a Trusted Execution Environment for UAV Communication,CKKS,Not reported,Not reported,Direct real-valued encoding (CKKS)
+33,SEAIS: Secure and Efficient Agricultural Image Storage Combining Blockchain and Satellite Networks,Paillier,,,
+34,Federated learning for drone authentication,Not reported (generic HE),,,
+35,RAHE: A Robust Attribute-Based Aggregate Scheme Enhanced with Homomorphic Encryption for 5G-Connected Delivery Drones,RAHE,Not reported,Not reported,Not reported
+36,Smart Flood Detection with AI and Blockchain Integration in Saudi Arabia Using Drones,Paillier,,,
+37,Towards Building Secure UAV Navigation with FHE-Aware Knowledge Distillation,CKKS,HEAAN,Not reported,Direct real-valued encoding (CKKS); SIMD packing

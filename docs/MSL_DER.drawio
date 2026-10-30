@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Página-1" id="wqFdA-TvYoVbVBZhHGnL">
-    <mxGraphModel dx="2666" dy="2181" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -13,11 +13,8 @@
         <mxCell id="TUuGg5Zm5o6Z6irYB9T9-3" parent="1" style="whiteSpace=wrap;html=1;fillColor=light-dark(#FFFFFF,#9AC7BF);fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" value="" vertex="1">
           <mxGeometry height="100" width="140" x="-170" y="290" as="geometry" />
         </mxCell>
-        <mxCell id="XHQ_8nGinfE0aCbCoBJ3-85" edge="1" parent="1" source="XHQ_8nGinfE0aCbCoBJ3-75" style="edgeStyle=none;shape=link;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" target="XHQ_8nGinfE0aCbCoBJ3-84">
+        <mxCell id="XHQ_8nGinfE0aCbCoBJ3-85" edge="1" parent="1" source="XHQ_8nGinfE0aCbCoBJ3-2" style="edgeStyle=none;shape=link;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" target="XHQ_8nGinfE0aCbCoBJ3-84">
           <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="XHQ_8nGinfE0aCbCoBJ3-75" parent="1" style="whiteSpace=wrap;html=1;fillColor=light-dark(#FFFFFF,#F19C99);fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" value="" vertex="1">
-          <mxGeometry height="100" width="140" x="230" y="20" as="geometry" />
         </mxCell>
         <mxCell id="XHQ_8nGinfE0aCbCoBJ3-62" edge="1" parent="1" source="XHQ_8nGinfE0aCbCoBJ3-50" style="edgeStyle=none;shape=link;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" target="XHQ_8nGinfE0aCbCoBJ3-60">
           <mxGeometry relative="1" as="geometry" />
@@ -204,19 +201,13 @@
         <mxCell id="XHQ_8nGinfE0aCbCoBJ3-72" parent="1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;fillColor=light-dark(#FFFFFF,#F19C99);fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" value="Reports" vertex="1">
           <mxGeometry height="60" width="120" x="240" y="40" as="geometry" />
         </mxCell>
-        <mxCell id="XHQ_8nGinfE0aCbCoBJ3-79" edge="1" parent="1" source="XHQ_8nGinfE0aCbCoBJ3-75" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;endArrow=none;endFill=0;fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" target="XHQ_8nGinfE0aCbCoBJ3-77">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
         <mxCell id="XHQ_8nGinfE0aCbCoBJ3-81" edge="1" parent="1" source="XHQ_8nGinfE0aCbCoBJ3-72" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;exitX=1;exitY=0;exitDx=0;exitDy=0;endArrow=none;endFill=0;fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" target="XHQ_8nGinfE0aCbCoBJ3-80">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="480" y="170" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="XHQ_8nGinfE0aCbCoBJ3-76" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontColor=light-dark(#000000,#000000);" value="CostReport" vertex="1">
-          <mxGeometry height="20" width="60" x="310" as="geometry" />
-        </mxCell>
         <mxCell id="XHQ_8nGinfE0aCbCoBJ3-77" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=light-dark(#FFFFFF,#F19C99);fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" value="MetricsAndValues" vertex="1">
-          <mxGeometry height="40" width="120" x="240" y="-60" as="geometry" />
+          <mxGeometry height="40" width="120" x="-160" y="220" as="geometry" />
         </mxCell>
         <mxCell id="XHQ_8nGinfE0aCbCoBJ3-83" edge="1" parent="1" source="XHQ_8nGinfE0aCbCoBJ3-80" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;endArrow=none;endFill=0;fillColor=light-dark(transparent,#F19C99);fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" target="XHQ_8nGinfE0aCbCoBJ3-82">
           <mxGeometry relative="1" as="geometry" />
@@ -393,7 +384,7 @@
           <mxGeometry height="10" width="10" x="520" y="380" as="geometry" />
         </mxCell>
         <mxCell id="zLgULdD-lIm_AUbRS2d1-49" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontColor=light-dark(#000000,#000000);" value="N" vertex="1">
-          <mxGeometry height="10" width="10" x="380" y="110" as="geometry" />
+          <mxGeometry height="10" width="10" x="215" y="255" as="geometry" />
         </mxCell>
         <mxCell id="zLgULdD-lIm_AUbRS2d1-50" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontColor=light-dark(#000000,#000000);" value="M" vertex="1">
           <mxGeometry height="10" width="10" x="610" y="95" as="geometry" />
@@ -479,16 +470,7 @@
         <mxCell id="0F8O6xCXMeLO0NUtXofj-2" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=none;fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" value="" vertex="1">
           <mxGeometry height="20" width="100" x="390" y="140" as="geometry" />
         </mxCell>
-        <mxCell id="claude-doi" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=light-dark(#000000,#E6E6E6);fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" value="DOI" vertex="1">
-          <mxGeometry height="40" width="120" x="-160" y="20" as="geometry" />
-        </mxCell>
-        <mxCell id="claude-behavior" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=light-dark(transparent,#9AC7BF);fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" value="Behavior" vertex="1">
-          <mxGeometry height="40" width="120" x="-230" y="400" as="geometry" />
-        </mxCell>
-        <mxCell id="claude-behavior-edge" edge="1" parent="1" source="claude-behavior" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;defaultLabelBackgroundColor=page;endArrow=none;endFill=0;fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" target="TUuGg5Zm5o6Z6irYB9T9-3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-      </root>
+      <mxCell id="claude-doi" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=light-dark(#000000,#E6E6E6);fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" value="DOI" vertex="1"><mxGeometry height="40" width="120" x="-160" y="20" as="geometry" /></mxCell><mxCell id="claude-behavior" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=light-dark(transparent,#9AC7BF);fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" value="" vertex="1"><mxGeometry height="40" width="120" x="-230" y="400" as="geometry" /></mxCell><mxCell id="claude-behavior-edge" edge="1" parent="1" source="claude-behavior" target="TUuGg5Zm5o6Z6irYB9T9-3" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;defaultLabelBackgroundColor=page;endArrow=none;endFill=0;fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="claude-behavior-inner" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=light-dark(transparent,#9AC7BF);fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#000000,#000000);" value="Behavior" vertex="1"><mxGeometry height="20" width="100" x="-220" y="410" as="geometry" /></mxCell></root>
     </mxGraphModel>
   </diagram>
 </mxfile>

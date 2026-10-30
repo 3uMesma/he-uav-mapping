@@ -10,11 +10,14 @@ CREATE TABLE Study (
     ProblemAddressed  TEXT         NOT NULL,
     CodeURL           VARCHAR(300),
     HEExecuted        BOOLEAN      NOT NULL,
+    MetricsAndValues  TEXT         NOT NULL,   -- RQ6: metricas de todos os custos do estudo
     CONSTRAINT StudyPK      PRIMARY KEY (StudyId),
     CONSTRAINT StudyTitleUK UNIQUE (Title),         -- chave candidata
     CONSTRAINT StudyDOIUK   UNIQUE (DOI),           -- chave candidata (aceita nulo)
     CONSTRAINT StudyYearCK  CHECK (Year BETWEEN 1978 AND 2100),
-    CONSTRAINT StudyCodeCK  CHECK (HEExecuted = (CodeURL IS NOT NULL))
+    -- HE executado exige CodeURL (link ou 'not available'); sem HE executado,
+    -- o estudo ainda pode ter link de codigo (ex.: codigo so da parte nao-HE)
+    CONSTRAINT StudyCodeCK  CHECK (NOT HEExecuted OR CodeURL IS NOT NULL)
 );
 
 CREATE TABLE HEScheme (
@@ -69,32 +72,15 @@ CREATE TABLE SchemeAdoption (
     CONSTRAINT SchemeAdoptionSecCK CHECK (SecurityLevelBits > 0)
 );
 
--- Agregacao sobre Reports (Study x CostType)
-CREATE TABLE CostReport (
-    StudyId           INTEGER     NOT NULL,
-    CostTypeName      VARCHAR(80) NOT NULL,
-    MetricsAndValues  TEXT        NOT NULL,
-    CONSTRAINT CostReportPK PRIMARY KEY (StudyId, CostTypeName),
-    CONSTRAINT CostReportStudyFK FOREIGN KEY (StudyId)
-        REFERENCES Study (StudyId) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT CostReportTypeFK FOREIGN KEY (CostTypeName)
-        REFERENCES CostType (Name) ON UPDATE CASCADE ON DELETE RESTRICT
-);
-
 -- Agregacao sobre Considers (Study x AdversaryParty)
 CREATE TABLE AdversaryModel (
     StudyId    INTEGER     NOT NULL,
     PartyName  VARCHAR(80) NOT NULL,
-    Behavior   VARCHAR(20) NOT NULL,
     CONSTRAINT AdversaryModelPK PRIMARY KEY (StudyId, PartyName),
     CONSTRAINT AdversaryModelStudyFK FOREIGN KEY (StudyId)
         REFERENCES Study (StudyId) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT AdversaryModelPartyFK FOREIGN KEY (PartyName)
-        REFERENCES AdversaryParty (Name) ON UPDATE CASCADE ON DELETE RESTRICT,
-    CONSTRAINT AdversaryModelBehavCK CHECK (
-        Behavior IN ('Honest-but-curious', 'Malicious', 'Other', 'Not stated')),
-    CONSTRAINT AdversaryModelNotStCK CHECK (
-        PartyName <> 'Not stated' OR Behavior = 'Not stated')
+        REFERENCES AdversaryParty (Name) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
 -- Agregacao sobre Perform (SchemeAdoption x HEOperation)
@@ -153,14 +139,22 @@ CREATE TABLE Encrypts (
         REFERENCES DataCategory (Name) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
--- Um dos papeis e a agregacao CostReport
+CREATE TABLE Reports (
+    StudyId       INTEGER     NOT NULL,
+    CostTypeName  VARCHAR(80) NOT NULL,
+    CONSTRAINT ReportsPK PRIMARY KEY (StudyId, CostTypeName),
+    CONSTRAINT ReportsStudyFK FOREIGN KEY (StudyId)
+        REFERENCES Study (StudyId) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT ReportsTypeFK FOREIGN KEY (CostTypeName)
+        REFERENCES CostType (Name) ON UPDATE CASCADE ON DELETE RESTRICT
+);
+
 CREATE TABLE ComparesWith (
     StudyId           INTEGER     NOT NULL,
-    CostTypeName      VARCHAR(80) NOT NULL,
     BaselineTypeName  VARCHAR(80) NOT NULL,
-    CONSTRAINT ComparesWithPK PRIMARY KEY (StudyId, CostTypeName, BaselineTypeName),
-    CONSTRAINT ComparesWithReportFK FOREIGN KEY (StudyId, CostTypeName)
-        REFERENCES CostReport (StudyId, CostTypeName) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT ComparesWithPK PRIMARY KEY (StudyId, BaselineTypeName),
+    CONSTRAINT ComparesWithStudyFK FOREIGN KEY (StudyId)
+        REFERENCES Study (StudyId) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ComparesWithBaselineFK FOREIGN KEY (BaselineTypeName)
         REFERENCES BaselineType (Name) ON UPDATE CASCADE ON DELETE RESTRICT
 );
@@ -218,4 +212,19 @@ CREATE TABLE PlainTextEncode (
     CONSTRAINT PlainTextEncodePK PRIMARY KEY (StudyId, SchemeName, Encoding),
     CONSTRAINT PlainTextEncodeAdoptFK FOREIGN KEY (StudyId, SchemeName)
         REFERENCES SchemeAdoption (StudyId, SchemeName) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Multivalorado da agregacao AdversaryModel: uma parte pode ter mais de um
+-- comportamento no mesmo estudo 
+CREATE TABLE AdversaryBehavior (
+    StudyId    INTEGER     NOT NULL,
+    PartyName  VARCHAR(80) NOT NULL,
+    Behavior   VARCHAR(20) NOT NULL,
+    CONSTRAINT AdversaryBehaviorPK PRIMARY KEY (StudyId, PartyName, Behavior),
+    CONSTRAINT AdversaryBehaviorModelFK FOREIGN KEY (StudyId, PartyName)
+        REFERENCES AdversaryModel (StudyId, PartyName) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT AdversaryBehaviorCK CHECK (
+        Behavior IN ('Honest-but-curious', 'Malicious', 'Other', 'Not stated')),
+    CONSTRAINT AdversaryBehaviorNotStCK CHECK (
+        PartyName <> 'Not stated' OR Behavior = 'Not stated')
 );
