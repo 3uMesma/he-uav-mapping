@@ -21,6 +21,9 @@ SUAVE = "#718096"
 BORDA = "#E2E8F0"
 FUNDO_CARTAO = "#F7FAFC"
 
+# Cor de cada família de esquema HE, igual ao gráfico por ano dos slides
+CORES_FAMILIA = {"PHE": AZUL, "FHE": VERDE, "SHE": LARANJA, "Not determined": CINZA}
+
 DRONE = Path(__file__).resolve().parent / "assets" / "drone.png"
 
 _CSS = f"""
@@ -55,7 +58,8 @@ _CSS = f"""
 .msl-grade {{ display: grid; gap: 1rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }}
 .msl-grade.c3 {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
 .msl-grade.c2 {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
-@media (max-width: 1000px) {{ .msl-grade, .msl-grade.c3 {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} }}
+.msl-grade.c1 {{ grid-template-columns: 1fr; }}
+@media (max-width: 1000px) {{ .msl-grade:not(.c1), .msl-grade.c3 {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} }}
 @media (max-width: 560px)  {{ .msl-grade, .msl-grade.c3, .msl-grade.c2 {{ grid-template-columns: 1fr; }} }}
 .msl-cartao {{
   background: {FUNDO_CARTAO}; border: 1px solid {BORDA};
@@ -133,7 +137,7 @@ def secao(titulo):
 
 
 def cartoes(itens, colunas=4):
-    """Grade de cartões (colunas: 2, 3 ou 4). Cada item é um dict com:
+    """Grade de cartões (colunas: 1, 2, 3 ou 4). Cada item é um dict com:
     rotulo (texto pequeno em maiúsculas), numero, texto e, opcionalmente,
     cor='laranja' para destacar o número (padrão azul)."""
     blocos = []
@@ -144,7 +148,7 @@ def cartoes(itens, colunas=4):
         if i.get("texto"):
             partes.append(f'<div class="texto">{_e(i["texto"])}</div>')
         blocos.append(f'<div class="msl-cartao {i.get("cor", "")}">{"".join(partes)}</div>')
-    classe = {2: "c2", 3: "c3"}.get(colunas, "")
+    classe = {1: "c1", 2: "c2", 3: "c3"}.get(colunas, "")
     st.html(f'<div class="msl-grade {classe}">{"".join(blocos)}</div>')
 
 
@@ -165,3 +169,78 @@ def nota(texto):
 
 def rodape():
     st.html('<div class="msl-rodape"><b>ICMC/USP</b> · 2026</div>')
+
+
+# ---------------------------------------------------------------------------
+# Gráficos (Plotly)
+# ---------------------------------------------------------------------------
+def layout_grafico(fig, altura):
+    """Aplica a identidade do site a uma figura Plotly: fundo transparente,
+    Inter, sem grade e legenda em linha acima do gráfico."""
+    fig.update_layout(
+        height=altura,
+        margin=dict(l=10, r=10, t=40, b=10),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Inter, sans-serif", size=13, color=TEXTO),
+        hoverlabel=dict(bgcolor="white", bordercolor=BORDA,
+                        font=dict(family="Inter, sans-serif", size=13, color=TITULO)),
+        legend=dict(orientation="h", x=0, xanchor="left", y=1.02, yanchor="bottom",
+                    title_text="", font=dict(size=13)),
+        showlegend=True,
+    )
+    # automargin: a margem cresce até caber o rótulo mais longo (sem cortar nomes)
+    fig.update_xaxes(showgrid=False, zeroline=False, linecolor=BORDA, ticks="",
+                     automargin=True, tickfont=dict(color=TEXTO, size=12))
+    fig.update_yaxes(showgrid=False, zeroline=False, ticks="",
+                     automargin=True, tickfont=dict(color=TEXTO, size=12))
+    return fig
+
+
+def cor_escala(n, maior):
+    """Azul da escala da matriz: de #DCEBFA (1 estudo) até AZUL (o maior valor)."""
+    claro, escuro = (0xDC, 0xEB, 0xFA), (0x2B, 0x6C, 0xB0)
+    t = (n - 1) / (maior - 1) if maior > 1 else 1
+    return "#%02x%02x%02x" % tuple(round(claro[i] + (escuro[i] - claro[i]) * t) for i in range(3))
+
+
+def bloco_arredondado(x, y, largura, altura, rx, ry):
+    """Caminho SVG de um retângulo de cantos arredondados centrado em (x, y).
+    Em eixo de categorias o Plotly mede o caminho pelo índice da categoria."""
+    x0, x1, y0, y1 = x - largura / 2, x + largura / 2, y - altura / 2, y + altura / 2
+    return (f"M{x0 + rx},{y0} L{x1 - rx},{y0} Q{x1},{y0} {x1},{y0 + ry} "
+            f"L{x1},{y1 - ry} Q{x1},{y1} {x1 - rx},{y1} L{x0 + rx},{y1} "
+            f"Q{x0},{y1} {x0},{y1 - ry} L{x0},{y0 + ry} Q{x0},{y0} {x0 + rx},{y0} Z")
+
+
+def grafico(fig, chave, ao_clicar):
+    """Mostra a figura com clique em pontos ligado. ao_clicar é chamada a
+    cada clique e lê a seleção em st.session_state[chave]."""
+    st.plotly_chart(
+        fig, key=chave, on_select=ao_clicar, selection_mode="points",
+        theme=None, config={"displayModeBar": False},
+    )
+
+
+def pontos_clicados(chave):
+    """Pontos selecionados no gráfico de chave dada (lista vazia se nenhum)."""
+    estado = st.session_state.get(chave)
+    if not estado:
+        return []
+    return estado["selection"]["points"]
+
+
+def lista_estudos(df, titulo):
+    """Lista de estudos (colunas year, title, doiurl) como tabela simples,
+    com o título levando ao DOI."""
+    def md(texto):
+        for c in "\\`*_[]|<>":
+            texto = texto.replace(c, "\\" + c)
+        return texto
+
+    linhas = ["| Year | Study |", "| --- | --- |"]
+    for r in df.itertuples():
+        nome = f"[{md(r.title)}]({r.doiurl})" if r.doiurl else md(r.title)
+        linhas.append(f"| {r.year} | {nome} |")
+    st.markdown(f"**{md(titulo)}**")
+    st.markdown("\n".join(linhas))
