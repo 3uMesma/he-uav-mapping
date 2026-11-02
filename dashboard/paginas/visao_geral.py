@@ -6,27 +6,16 @@ Visão geral: o que o mapeamento cobre, em números, no tempo e por aplicação.
   - matriz de lacunas: aplicação x uma faceta escolhida (VwFacetCross).
 Clicar numa barra ou numa célula lista os estudos por trás dela.
 """
-import textwrap
-
 import plotly.graph_objects as go
 import streamlit as st
 
 from db import run_query
-from estilo import (AZUL, BORDA, CORES_FAMILIA, TEXTO, TITULO, abertura, bloco_arredondado,
-                    cartoes, cor_escala, grafico,
-                    layout_grafico, lista_estudos, nota, pontos_clicados, rodape, secao, tabela)
+from estilo import (BORDA, CORES_FAMILIA, TEXTO, abertura, cartoes, grafico, layout_grafico,
+                    nota, pontos_clicados, rodape, secao, tabela)
+from graficos import matriz, mostrar_selecao
 
 # Ordem de exibição das categorias (a ordem do formulário, não a alfabética)
 FAMILIAS = ["PHE", "SHE", "FHE", "Not determined"]
-
-
-def estudos_por_id(ids):
-    # VIEW: VwStudyOverview — dados bibliográficos dos estudos selecionados
-    return run_query(
-        "SELECT StudyId, Year, Title, DoiUrl FROM VwStudyOverview "
-        "WHERE StudyId = ANY(%s) ORDER BY Year, Title",
-        (list(ids),),
-    )
 
 
 # ===========================================================================
@@ -136,7 +125,7 @@ def ao_clicar_ano():
         if len(linha):
             ids += list(linha.iloc[0]["studyids"])
             rotulo = f'{ano} · {familia} · HE {"executed" if executado else "not executed"}'
-    st.session_state["sel_ano"] = {"rotulo": rotulo, "ids": ids} if ids else None
+    st.session_state["sel_grafico_ano"] = {"rotulo": rotulo, "ids": ids} if ids else None
 
 
 grafico_col, texto_col = st.columns([3, 1], vertical_alignment="center")
@@ -156,9 +145,7 @@ st.caption(
     "operations proposed but not executed. The last year covers the studies published "
     "until the search date. Click a bar segment to list its studies."
 )
-if st.session_state.get("sel_ano"):
-    sel = st.session_state["sel_ano"]
-    lista_estudos(estudos_por_id(sel["ids"]), f'{sel["rotulo"]}: {len(sel["ids"])} studies')
+mostrar_selecao("grafico_ano")
 
 
 # ===========================================================================
@@ -181,7 +168,7 @@ COLUNAS_MATRIZ = {
 
 
 def ao_trocar_faceta():
-    st.session_state["sel_matriz"] = None
+    st.session_state["sel_grafico_matriz"] = None
 
 
 faceta = st.selectbox(
@@ -207,73 +194,14 @@ celulas = run_query(
     (faceta,),
 )
 celulas = celulas.set_index(["application", "category"])
-maior = max(int(celulas["studies"].max()), 1)
-
-linhas_y = linhas[::-1]
-n_cel = {(a, c): int(celulas.loc[(a, c), "studies"]) for a in linhas_y for c in colunas}
-
-ALTURA_LINHA = 44
-fracao = min(1.0, 0.3 + 0.1 * len(colunas))
-largura_coluna = 1000 * fracao / len(colunas)
-raio_y = 9 / ALTURA_LINHA
-raio_x = 9 / largura_coluna
-formas = [
-    dict(type="path", layer="below", line=dict(width=0), fillcolor=cor_escala(n, maior),
-         path=bloco_arredondado(colunas.index(c), linhas_y.index(a), 0.92, 0.78, raio_x, raio_y))
-    for (a, c), n in n_cel.items() if n > 0
-]
-
-fig = go.Figure()
-# Um ponto invisível por célula, com o número escrito. É ele que recebe o clique e
-# o hover (o Streamlit só devolve seleção de pontos). Célula vazia mostra "·".
-pontos = [(a, c, n_cel[(a, c)]) for a in linhas_y for c in colunas]
-fig.add_trace(go.Scatter(
-    x=[c for _, c, _ in pontos], y=[a for a, _, _ in pontos],
-    mode="markers+text", showlegend=False,
-    text=[str(n) if n else "·" for _, _, n in pontos],
-    textfont=dict(family="Inter, sans-serif", size=13,
-                  color=["white" if n > maior / 2 else (TITULO if n else "#CBD5E0")
-                         for _, _, n in pontos]),
-    marker=dict(size=34, symbol="square", color="rgba(0,0,0,0)"),
-    customdata=[n for _, _, n in pontos],
-    hovertemplate="<b>%{y}</b><br>%{x}<br>%{customdata} studies<extra></extra>",
-    selected=dict(marker=dict(opacity=1)),
-    unselected=dict(marker=dict(opacity=1)),
-))
-layout_grafico(fig, altura=90 + ALTURA_LINHA * len(linhas))
-fig.update_layout(showlegend=False, shapes=formas, margin=dict(l=10, r=10, t=10, b=10))
-fig.update_xaxes(side="top", categoryorder="array", categoryarray=colunas,
-                 range=[-0.5, len(colunas) - 0.5], linecolor="rgba(0,0,0,0)",
-                 tickvals=colunas, ticktext=["<br>".join(textwrap.wrap(c, 14)) for c in colunas])
-fig.update_yaxes(categoryorder="array", categoryarray=linhas_y, range=[-0.5, len(linhas_y) - 0.5])
-
-
-def ao_clicar_celula():
-    pts = pontos_clicados("grafico_matriz")
-    pts = [p for p in pts if p.get("curve_number", 0) == 0]
-    if not pts:
-        st.session_state["sel_matriz"] = None
-        return
-    a, c = pts[0]["y"], pts[0]["x"]
-    ids = list(celulas.loc[(a, c), "studyids"])
-    st.session_state["sel_matriz"] = {"rotulo": f"{a} · {c}", "ids": ids} if ids else None
-
-
-if fracao < 1:
-    matriz_col, _ = st.columns([fracao, 1 - fracao])
-    with matriz_col:
-        grafico(fig, "grafico_matriz", ao_clicar_celula)
-else:
-    grafico(fig, "grafico_matriz", ao_clicar_celula)
+matriz("grafico_matriz", linhas, colunas, celulas)
 st.caption(
     "Number of studies per pair: UAV application × the attribute chosen above. Empty cells "
     "are gaps in the literature. A study can address several applications and have several "
     "values of the chosen attribute, so it can count in more than one cell. Click a cell to "
     "list its studies."
 )
-if st.session_state.get("sel_matriz"):
-    sel = st.session_state["sel_matriz"]
-    lista_estudos(estudos_por_id(sel["ids"]), f'{sel["rotulo"]}: {len(sel["ids"])} studies')
+mostrar_selecao("grafico_matriz")
 
 
 # ===========================================================================
