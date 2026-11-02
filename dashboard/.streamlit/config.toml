@@ -1,0 +1,21 @@
+# Configuração do Streamlit para o dashboard.
+
+[server]
+headless = true
+runOnSave = true
+fileWatcherType = "poll"
+
+[client]
+# Esconde o botão "Deploy" e o menu de desenvolvimento
+toolbarMode = "viewer"
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+# Cores dos slides do mapeamento (as fontes Poppins e Inter vêm de estilo.py)
+base = "light"
+primaryColor = "#2B6CB0"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F7FAFC"
+textColor = "#2D3748"

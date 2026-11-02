@@ -13,10 +13,30 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./db:/docker-entrypoint-initdb.d:ro   # roda 01_, 02_, ... em ordem
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      # -h localhost: so responde depois que os scripts de init terminam
+      # (durante o init o PostgreSQL escuta so no socket local)
+      test: ["CMD-SHELL", "pg_isready -h localhost -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
- 
+
+  dashboard:
+    build: ./dashboard
+    container_name: he-uav-dashboard
+    restart: unless-stopped
+    environment:
+      DB_HOST: db                 # nome do servico do banco na rede do compose
+      DB_PORT: 5432               # porta de dentro da rede, nao a do host
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${DASHBOARD_PORT:-8501}:8501"
+    volumes:
+      - ./dashboard:/app          # editar o codigo atualiza o site sem rebuild
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pgdata:

@@ -1,2 +1,3 @@
 .env
 /data
+/dashboard/__pycache__
