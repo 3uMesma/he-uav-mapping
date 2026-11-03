@@ -40,6 +40,7 @@ paginas = {
         st.Page("paginas/rq3.py", title="RQ3 · HE schemes and libraries"),
         st.Page("paginas/rq4.py", title="RQ4 · Validation"),
         st.Page("paginas/rq5.py", title="RQ5 · Where and when HE runs"),
+        st.Page("paginas/rq6.py", title="RQ6 · Costs and baselines"),
     ],
 }
 
