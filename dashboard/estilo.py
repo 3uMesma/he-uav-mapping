@@ -47,6 +47,28 @@ _CSS = f"""
 .msl-hero .sub {{ font-family: 'Inter', sans-serif; color: {TEXTO}; font-size: 1.05rem; margin: 0 0 .6rem 0; }}
 .msl-hero .autoria {{ font-family: 'Inter', sans-serif; color: {SUAVE}; font-size: .95rem; }}
 
+/* Menu do topo: página atual e seção atual em azul-claro, com texto azul.
+   Os data-testid vêm do próprio Streamlit (TopNav). */
+[data-testid="stTopNavLink"][aria-current="page"],
+[data-testid="stTopNavDropdownLink"][aria-current="page"] {{
+  background-color: #EBF4FF;
+}}
+[data-testid="stTopNavLink"][aria-current="page"] *,
+[data-testid="stTopNavDropdownLink"][aria-current="page"] * {{
+  color: {AZUL} !important; font-weight: 600;
+}}
+
+/* Cabeçalho das páginas de RQ: rótulo pequeno, título em azul e a pergunta */
+.msl-cab .rotulo {{
+  font-family: 'Inter', sans-serif; font-size: .78rem; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase; color: {SUAVE};
+}}
+.msl-cab h1 {{
+  font-family: 'Poppins', sans-serif; font-weight: 700; color: {AZUL};
+  font-size: 2.1rem; line-height: 1.2; margin: .2rem 0 .5rem 0; padding: 0;
+}}
+.msl-cab .pergunta {{ font-family: 'Inter', sans-serif; color: {TEXTO}; font-size: 1.02rem; margin: 0; }}
+
 /* Título de seção */
 .msl-sec {{
   font-family: 'Poppins', sans-serif; font-weight: 700; color: {TITULO};
@@ -129,6 +151,29 @@ def abertura(titulo, subtitulo, autoria):
         )
     with imagem:
         st.image(str(DRONE), width=220)
+
+
+def destacar_secao_menu(posicao):
+    """Deixa a seção do menu do topo destacada enquanto se está numa página dela.
+    posicao: lugar da seção na barra, contando as páginas soltas (Overview = 1,
+    Research questions = 2). O Streamlit só marca a página atual dentro do menu
+    aberto, por isso cada página injeta esta regra."""
+    st.html(f"""<style>
+[data-testid="stTopNav"] > :nth-child({int(posicao)}) [data-testid="stTopNavSection"] {{
+  background-color: #EBF4FF;
+}}
+[data-testid="stTopNav"] > :nth-child({int(posicao)}) [data-testid="stTopNavSection"] * {{
+  color: {AZUL} !important; font-weight: 600;
+}}
+</style>""")
+
+
+def cabecalho(numero, titulo, pergunta, posicao_menu=2):
+    """Topo das páginas de RQ: "Research Question: 01", o título e a pergunta.
+    Também destaca a seção "Research questions" no menu do topo."""
+    destacar_secao_menu(posicao_menu)
+    st.html(f'<div class="msl-cab"><div class="rotulo">Research Question: {int(numero):02d}</div>'
+            f'<h1>{_e(titulo)}</h1><p class="pergunta">{_e(pergunta)}</p></div>')
 
 
 def secao(titulo):

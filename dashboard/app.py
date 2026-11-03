@@ -1,6 +1,7 @@
 """
 Ponto de entrada do dashboard: configuração da página e menu lateral.
 
+Cada página fica em paginas/ e é registrada aqui.
 """
 import psycopg2
 import streamlit as st
@@ -26,8 +27,16 @@ except psycopg2.OperationalError as erro:
     st.code(str(erro))
     st.stop()
 
-paginas = [
-    st.Page("paginas/visao_geral.py", title="Overview", icon=":material/dashboard:", default=True),
-]
+# Menu lateral em seções. Cada página nova entra aqui.
+paginas = {
+    "": [
+        st.Page("paginas/visao_geral.py", title="Overview", icon=":material/dashboard:", default=True),
+    ],
+    ":material/manage_search: Research questions": [
+        st.Page("paginas/rq1.py", title="RQ1 · Research type", icon=":material/science:"),
+        st.Page("paginas/rq2.py", title="RQ2 · UAV applications", icon=":material/category:"),
+    ],
+}
 
-st.navigation(paginas).run()
+# Menu no topo, como num site (Streamlit 1.46 ou mais novo)
+st.navigation(paginas, position="top").run()
