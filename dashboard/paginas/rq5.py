@@ -13,11 +13,21 @@ import streamlit as st
 
 from db import run_query
 from estilo import (AZUL, CINZA, LARANJA, TITULO, VERDE, cabecalho, cartoes, layout_grafico,
-                    rodape, secao, tabela)
+                    secao, tabela)
 from graficos import barras, contagem, matriz, mostrar, mostrar_selecao, total_estudos
 
-cabecalho(5, "Where and when HE runs",
-          "Where and at which stage of the UAV operation is each HE operation executed?")
+cabecalho(
+    5, "Where and when HE runs",
+    "Where and at which stage of the UAV operation is each HE operation executed?",
+    descricao=(
+        "Using HE involves three operations that can run in different places: encryption, "
+        "homomorphic evaluation and decryption. Where each one runs shows who sees the data in "
+        "plaintext and who only handles ciphertexts. The page shows the location of each "
+        "operation, how the data travel from encryption to decryption, which complete flows "
+        "repeat across studies, and at which phase of the UAV operation (before, during or "
+        "after the flight) HE is used."
+    ),
+)
 
 total = total_estudos()
 ETAPAS = ["Encryption", "Homomorphic evaluation", "Decryption"]
@@ -32,6 +42,27 @@ LOCAIS = ["On board", "Peer UAV", "Sensor or external device", "Ground station/u
 secao("Where each HE operation runs",
       "Who encrypts the data, who computes on the ciphertexts without the key, and who "
       "holds the key and decrypts the result.")
+
+# As três operações, explicadas antes da matriz e do Sankey, que usam as mesmas colunas
+OPERACOES = [
+    ("Step 1", "Encryption",
+     "Turns the data into ciphertexts. Whoever encrypts still sees the data in plaintext."),
+    ("Step 2", "Homomorphic evaluation",
+     "Computes on the ciphertexts without the secret key, so this party never sees the data."),
+    ("Step 3", "Decryption",
+     "Recovers the result in plaintext. Only the holder of the secret key can do it."),
+]
+st.html(
+    '<div class="msl-grade c3">'
+    + "".join(
+        f'<div class="msl-cartao"><div class="rotulo">{passo}</div>'
+        f'<div style="font-family: Poppins, sans-serif; font-weight: 700; font-size: 1rem; '
+        f'color: {AZUL}; margin: .15rem 0 .3rem 0;">{nome}</div>'
+        f'<div class="texto">{texto}</div></div>'
+        for passo, nome, texto in OPERACOES
+    )
+    + "</div>"
+)
 
 # VIEW: VwFacetCount — estudos por local, uma faceta por operação
 # ('Encryption location', 'Homomorphic evaluation location', 'Decryption location')
@@ -162,7 +193,7 @@ fig = go.Figure(go.Sankey(
         color=[rgba(CORES_ZONA[r.zonefrom], 0.35) for r in fitas.itertuples()],
         customdata=[f"<b>{r.zonefrom} → {r.zoneto}</b><br>{r.stepfrom} → {r.stepto}"
                     for r in fitas.itertuples()],
-        hovertemplate="%{customdata}<br>%{value} studies<extra></extra>",
+        hovertemplate="%{customdata}<br>%{value:.0f} studies<extra></extra>",
     ),
     textfont=dict(family="Inter, sans-serif", size=13, color=TITULO),
 ))
@@ -211,7 +242,9 @@ tabela(
 # ===========================================================================
 # Fase da operação do VANT
 # ===========================================================================
-secao("Flight phase", "When the HE operations happen relative to the flight.")
+secao("Flight phase",
+      "When the HE operations happen relative to the flight: before take-off, during the "
+      "flight or after landing.")
 
 grafico_col, _ = st.columns([3, 2])
 with grafico_col:

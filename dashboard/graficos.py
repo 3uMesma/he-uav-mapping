@@ -163,7 +163,7 @@ def matriz(chave, linhas, colunas, celulas, largura_maxima=1000, cinza=()):
             return
         a, c = pts[0]["y"], pts[0]["x"]
         ids = list(celulas.loc[(a, c), "studyids"]) if n_cel.get((a, c)) else []
-        rotulo = f"{a} only" if (a, c) in cinza else f"{a} · {c}"
+        rotulo = f"{a} only" if (a, c) in cinza and a == c else f"{a} · {c}"
         st.session_state[f"sel_{chave}"] = {"rotulo": rotulo, "ids": ids} if ids else None
 
     if fracao < 1:

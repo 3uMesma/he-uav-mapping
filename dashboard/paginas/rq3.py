@@ -10,10 +10,21 @@ import streamlit as st
 
 from db import run_query
 from estilo import (CORES_FAMILIA, CORES_FAMILIA_CLARO, cabecalho, cartoes, cartoes_esquemas,
-                    rodape, secao)
+                    secao)
 from graficos import barras, contagem, mostrar_selecao, total_estudos
 
-cabecalho(3, "HE schemes and libraries", "Which HE schemes and libraries have been adopted?")
+cabecalho(
+    3, "HE schemes and libraries", "Which HE schemes and libraries have been adopted?",
+    descricao=(
+        "The HE scheme determines which operations can be computed on encrypted data. "
+        "Partially homomorphic schemes (PHE) support a single operation, such as addition in "
+        "Paillier; somewhat homomorphic schemes (SHE) support additions and a limited number "
+        "of multiplications; fully homomorphic schemes (FHE) support arbitrary computations. "
+        "The page shows the schemes adopted by the studies and their families, the libraries "
+        "used to implement them, the implementation details the studies report, and how "
+        "data become plaintexts before encryption."
+    ),
+)
 
 total = total_estudos()
 esquemas = contagem("HE scheme")
@@ -31,7 +42,9 @@ cor_esquema = {e: CORES_FAMILIA[f] for e, f in familia_de.items()}
 # ===========================================================================
 # Estudos por esquema
 # ===========================================================================
-secao("Studies by HE scheme")
+secao("Studies by HE scheme",
+      "Number of studies per HE scheme, colored by family. A study can adopt more than one "
+      "scheme. Not reported groups the studies that use HE without naming the scheme.")
 cartoes([
     {"rotulo": "PHE · partially homomorphic", "cor": CORES_FAMILIA["PHE"],
      "numero": f"{int(n_familia.get('PHE', 0))} of {total}",
@@ -73,7 +86,9 @@ mostrar_selecao("rq3_esquema")
 # ===========================================================================
 # Família > esquema > biblioteca (icicle)
 # ===========================================================================
-secao("From family to library")
+secao("From family to library",
+      "Each family with its schemes and the libraries used to implement them. Libraries "
+      "apply only to the studies that executed the HE operations.")
 
 NAO_INFORMADO = ("Not reported", "Not applicable")
 n_esquema = dict(zip(esquemas["value"], esquemas["studies"]))

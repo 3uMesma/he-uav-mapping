@@ -11,7 +11,7 @@ import streamlit as st
 
 from db import run_query
 from estilo import (BORDA, CORES_FAMILIA, TEXTO, abertura, cartoes, grafico, layout_grafico,
-                    nota, pontos_clicados, rodape, secao, tabela)
+                    nota, pontos_clicados, secao, tabela)
 from graficos import matriz, mostrar_selecao
 
 # Ordem de exibição das categorias (a ordem do formulário, não a alfabética)
@@ -28,8 +28,11 @@ total = int(kpi["studies"])
 
 abertura(
     "Homomorphic encryption in UAVs:<br>applications, schemes and costs",
-    f"Interactive companion to the systematic mapping study. Explore the {total} "
-    "primary studies by research question, and from any number get to the studies behind it.",
+    "Interactive companion to the systematic mapping study on homomorphic encryption in "
+    f"unmanned aerial vehicles. It presents the data extracted from the {total} primary "
+    "studies, organized by the seven research questions: UAV applications, HE schemes and "
+    "libraries, validation, where the HE operations run, reported costs and threat models. "
+    "Every count is linked to the studies behind it.",
         "Amanda Kasat Baltor · Advisor: Prof. Dr. Kalinka Castelo Branco · ICMC/USP",
     orcids={
         "Amanda Kasat Baltor": "https://orcid.org/0009-0004-0709-4625",
@@ -37,7 +40,8 @@ abertura(
     },
 )
 
-secao("The mapping in numbers")
+secao("The mapping in numbers",
+      f"Headline figures of the {total} primary studies included in the mapping.")
 cartoes([
     {"rotulo": "Primary studies", "numero": total,
      "texto": "Included after full-text reading and data extraction."},
@@ -57,7 +61,9 @@ cartoes([
 # ===========================================================================
 # Estudos por ano: barras empilhadas por família, hachura = HE não executado
 # ===========================================================================
-secao("Studies over time")
+secao("Studies over time",
+      "Primary studies per publication year, by family of the HE scheme adopted and by "
+      "whether the HE operations were executed.")
 
 # VIEWS: VwStudyOverview (ano, HE executado) e VwStudyFacet (família HE; uma por estudo)
 por_ano = run_query(
@@ -155,10 +161,12 @@ mostrar_selecao("grafico_ano")
 # ===========================================================================
 # Matriz de lacunas: aplicação x uma faceta escolhida (evidence gap map)
 # ===========================================================================
-secao("Where research concentrates")
+secao("Where research concentrates",
+      "How UAV applications combine with other attributes of the studies. Empty cells point to combinations that no study has addressed.")
 
 # Facetas que podem ir nas colunas da matriz (as linhas são sempre as aplicações)
 COLUNAS_MATRIZ = {
+    "Research type": "Research type (RQ1)",
     "HE family": "HE scheme family (RQ3)",
     "HE scheme": "HE scheme (RQ3)",
     "Validation approach": "Validation approach (RQ4)",
@@ -167,7 +175,6 @@ COLUNAS_MATRIZ = {
     "Baseline type": "Baseline (RQ6)",
     "Protected data": "Protected data (RQ7)",
     "Protected from": "Protected from (RQ7)",
-    "Research type": "Research type (RQ1)",
 }
 
 
@@ -211,7 +218,8 @@ mostrar_selecao("grafico_matriz")
 # ===========================================================================
 # RQs e nota final
 # ===========================================================================
-secao("Research questions")
+secao("Research questions",
+      "The seven questions that guide the mapping, each with its own page in the menu.")
 tabela(["RQ", "Topic"], [
     ["RQ1", "Research type"],
     ["RQ2", "UAV application and problem addressed"],
@@ -225,5 +233,5 @@ tabela(["RQ", "Topic"], [
 nota(
     "Most attributes are multi-valued: a study can address several applications, "
     "report several costs or adopt several schemes. Counts are always numbers of "
-    "studies, so percentages within one attribute do not add up to 100%."
+    "studies, so percentages within one attribute need not add up to 100%."
 )

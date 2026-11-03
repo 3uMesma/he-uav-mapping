@@ -80,6 +80,11 @@ _CSS = f"""
   font-size: 2.1rem; line-height: 1.2; margin: .2rem 0 .5rem 0; padding: 0;
 }}
 .msl-cab .pergunta {{ font-family: 'Inter', sans-serif; color: {TEXTO}; font-size: 1.02rem; margin: 0; }}
+/* Pergunta + descrição num parágrafo só, como o texto de abertura da Overview */
+.msl-cab .descricao {{
+  font-family: 'Inter', sans-serif; color: {TEXTO}; font-size: 1.05rem; line-height: 1.65; margin: 0;
+}}
+.msl-cab .descricao b {{ color: {TITULO}; font-weight: 600; }}
 
 /* Título de seção */
 .msl-sec {{
@@ -155,14 +160,6 @@ _CSS = f"""
   display: flex; align-items: center; justify-content: center;
   font-family: 'Poppins', sans-serif; font-weight: 700; font-size: .72rem; line-height: 1;
 }}
-
-/* Rodapé */
-.msl-rodape {{
-  font-family: 'Inter', sans-serif; font-size: .85rem; color: {SUAVE}; text-align: center;
-  border-top: 1px solid {BORDA}; margin-top: 2.5rem; padding-top: .8rem;
-}}
-.msl-rodape b {{ color: {AZUL}; font-weight: 600; }}
-</style>
 """
 
 
@@ -206,12 +203,18 @@ def destacar_secao_menu(posicao):
 </style>""")
 
 
-def cabecalho(numero, titulo, pergunta, posicao_menu=3):
+def cabecalho(numero, titulo, pergunta, posicao_menu=3, descricao=None):
     """Topo das páginas de RQ: "Research Question: 01", o título e a pergunta.
+    descricao, se dada, vem no mesmo parágrafo da pergunta (que fica em negrito),
+    no tamanho do texto de abertura da Overview.
     Também destaca a seção "Research questions" no menu do topo."""
     destacar_secao_menu(posicao_menu)
+    if descricao:
+        texto = f'<p class="descricao"><b>{_e(pergunta)}</b> {_e(descricao)}</p>'
+    else:
+        texto = f'<p class="pergunta">{_e(pergunta)}</p>'
     st.html(f'<div class="msl-cab"><div class="rotulo">Research Question: {int(numero):02d}</div>'
-            f'<h1>{_e(titulo)}</h1><p class="pergunta">{_e(pergunta)}</p></div>')
+            f'<h1>{_e(titulo)}</h1>{texto}</div>')
 
 
 def secao(titulo, subtitulo=None):
@@ -280,11 +283,6 @@ def nota(texto):
         f'<div class="msl-nota"><span class="icone">i</span>'
         f'<span>{_e(texto)}</span></div>'
     )
-
-
-def rodape():
-    st.html('<div class="msl-rodape"><b>ICMC/USP</b> · 2026</div>')
-
 
 # ---------------------------------------------------------------------------
 # Gráficos (Plotly)

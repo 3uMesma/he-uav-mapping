@@ -11,11 +11,20 @@ import streamlit as st
 
 from db import run_query
 from estilo import (AZUL, BORDA, FUNDO_CARTAO, TITULO, cabecalho, cartoes, grafico,
-                    layout_grafico, pontos_clicados, rodape, secao)
+                    layout_grafico, pontos_clicados, secao)
 from graficos import barras, contagem, matriz, mostrar_selecao, total_estudos
 
-cabecalho(6, "Costs and baselines",
-          "Which costs of HE are reported, and against which baselines are they compared?")
+cabecalho(
+    6, "Costs and baselines",
+    "Which costs of HE are reported, and against which baselines are they compared?",
+    descricao=(
+        "Computing on encrypted data usually comes at a price: operations take longer, "
+        "ciphertexts are larger than the original data and some schemes approximate the "
+        "results. The page shows which of these costs the studies report, which costs are "
+        "reported together, and against which baselines they are compared, such as the same "
+        "computation without encryption or another privacy technique."
+    ),
+)
 
 total = total_estudos()
 custos = contagem("Cost type")
@@ -48,7 +57,8 @@ dois_ou_mais = int(combinacoes.loc[combinacoes["costs"] >= 2, "studies"].sum())
 # Custos reportados
 # ===========================================================================
 secao("Which costs are reported",
-      "The overhead each study measures or estimates when HE is added to the UAV system.")
+      "The overhead each study measures or estimates when HE is added to the UAV system. "
+      "A study can report several costs.")
 
 grafico_col, texto_col = st.columns([2, 1], vertical_alignment="center")
 with grafico_col:
@@ -71,8 +81,8 @@ mostrar_selecao("rq6_custo")
 # Custos reportados juntos (UpSet)
 # ===========================================================================
 secao("Which costs are reported together",
-      "Each column is a combination of costs and the number of studies that report exactly "
-      "that combination.")
+      "Combinations of costs reported in the same study. Each column is a combination and its "
+      "bar is the number of studies that report exactly that combination.")
 
 colunas = list(range(len(combinacoes)))
 membros = [c.split(" + ") for c in combinacoes["combo"]]
@@ -168,7 +178,8 @@ mostrar_selecao("rq6_combinacao")
 # Baselines
 # ===========================================================================
 secao("Compared against what",
-      "The reference each study uses to put its costs in context.")
+      "The reference each study uses to put its costs in context. A study can compare "
+      "against several baselines.")
 
 grafico_col, texto_col = st.columns([2, 1], vertical_alignment="center")
 with grafico_col:
@@ -188,7 +199,9 @@ mostrar_selecao("rq6_baseline")
 # ===========================================================================
 # Custo x baseline
 # ===========================================================================
-secao("Which cost against which baseline", "How each cost was put in context.")
+secao("Which cost against which baseline",
+      "Number of studies per reported cost and baseline, showing which reference each cost "
+      "is compared with.")
 
 # Baselines na ordem das barras: mais frequente primeiro, "No baseline" por último
 colunas_baseline = list(

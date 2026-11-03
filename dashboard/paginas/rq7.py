@@ -11,11 +11,21 @@ import streamlit as st
 
 from db import run_query
 from estilo import (AZUL, CINZA, LARANJA, TITULO, cabecalho, cartoes, grafico, layout_grafico,
-                    pontos_clicados, rodape, secao)
+                    pontos_clicados, secao)
 from graficos import barras, contagem, matriz, mostrar_selecao, total_estudos
 
-cabecalho(7, "Threat model",
-          "Which data are protected with HE, from whom, and under which adversary behavior?")
+cabecalho(
+    7, "Threat model",
+    "Which data are protected with HE, from whom, and under which adversary behavior?",
+    descricao=(
+        "A threat model states what must be kept secret and from whom. For each study, the "
+        "page shows which data are encrypted with HE, which parties the data are protected "
+        "from (an external eavesdropper, an edge or cloud server, another UAV or operator, an "
+        "auditor or regulator, or an untrusted on-board component) and how those parties are "
+        "assumed to behave: honest-but-curious parties follow the protocol but try to learn "
+        "from what they see, while malicious parties may deviate from it."
+    ),
+)
 
 total = total_estudos()
 dados = contagem("Protected data")
@@ -33,34 +43,44 @@ def ordem(df):
 
 ordem_dados, ordem_partes = ordem(dados), ordem(partes)
 
-# Estudos que cifram a posição ou a rota planejada (cada estudo uma vez)
-posicao_ou_rota = int(run_query(
-    "SELECT COUNT(DISTINCT StudyId) AS n FROM Encrypts "
-    "WHERE DataCategoryName IN ('Position/trajectory', 'Planned route/flight path')"
-).iloc[0]["n"])
+# Estudos que cifram mais de um tipo de dado, e estudos que cifram a posição ou
+# a rota e citam um auditor/regulador entre os adversários (a ligação é pelo
+# estudo: a extração não liga cada dado a cada parte)
+extras = run_query(
+    """
+    SELECT (SELECT COUNT(*) FROM (SELECT StudyId FROM Encrypts
+                                  GROUP BY StudyId HAVING COUNT(*) > 1) AS X) AS Varios,
+           (SELECT COUNT(DISTINCT E.StudyId)
+            FROM Encrypts E
+            JOIN AdversaryModel A ON A.StudyId = E.StudyId
+            WHERE E.DataCategoryName IN ('Position/trajectory', 'Planned route/flight path')
+              AND A.PartyName = 'Auditor/regulator') AS Regulador
+    """
+).iloc[0]
 
 
 # ===========================================================================
 # Dados protegidos
 # ===========================================================================
-secao("What data are protected", "The data each study keeps encrypted while it is processed.")
+secao("What data are protected",
+      "The data each study keeps encrypted while it is processed. A study can protect "
+      "several kinds of data.")
 
 grafico_col, texto_col = st.columns([2, 1], vertical_alignment="center")
 with grafico_col:
     barras("rq7_dado", dados, total=total)
 with texto_col:
     cartoes([
-        {"rotulo": "Model parameters",
-         "numero": f"{int(n_dado.get('Model parameters', 0))} of {total}",
-         "texto": "Weights and updates in federated or distributed learning."},
-        {"rotulo": "Position or planned route", "numero": f"{posicao_ou_rota} of {total}",
-         "texto": "Where the UAV is or where it plans to fly."},
+        {"rotulo": "More than one kind of data", "numero": f"{int(extras['varios'])} of {total}",
+         "texto": "Studies that encrypt data from two or more categories, such as position "
+                  "and sensor readings."},
         {"rotulo": "Restricted zone or policy data",
          "numero": f"{int(n_dado.get('Restricted zone or policy data', 0))} of {total}",
          "texto": "No study encrypts no-fly zones or operating rules."},
     ], colunas=1)
 st.caption(
     "A study can count in several bars. Other: data outside the listed categories. "
+    "Restricted zone or policy data: an option of the extraction form that no study uses. "
     "Click a bar to list its studies."
 )
 mostrar_selecao("rq7_dado")
@@ -175,7 +195,9 @@ mostrar_selecao("rq7_parte")
 # ===========================================================================
 # Dado protegido x parte
 # ===========================================================================
-secao("Which data, protected from whom", "The data each study encrypts against the parties it names.")
+secao("Which data, protected from whom",
+      "Number of studies per kind of protected data and adversary party, linked through the "
+      "study.")
 
 # VIEW: VwFacetCross — estudos por (dado protegido, parte)
 celulas = run_query(

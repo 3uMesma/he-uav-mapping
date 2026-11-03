@@ -11,7 +11,7 @@ import pandas as pd
 import streamlit as st
 
 from db import run_query
-from estilo import rodape, tabela
+from estilo import tabela
 
 # ---------------------------------------------------------------------------
 # Dados
@@ -92,8 +92,11 @@ def md(texto):
 # ---------------------------------------------------------------------------
 st.html(
     '<div class="msl-cab"><div class="rotulo">Study explorer</div><h1>Studies</h1>'
-    f'<p class="pergunta">Search and filter the {total} primary studies of the mapping. '
-    'Each row links to the paper.</p></div>'
+    f'<p class="pergunta">All {total} primary studies of the mapping in one table, one row per '
+    'study, with the attributes extracted to answer the research questions. The filters narrow '
+    'the list by any combination of attributes, from research type and HE family to where the '
+    'HE operations run and the threat model. Selecting a row opens the full extraction of that '
+    'study, and the DOI link leads to the paper.</p></div>'
 )
 
 # ---------------------------------------------------------------------------
@@ -170,14 +173,25 @@ tabela_df = pd.DataFrame({
     "HE executed": resultado["heexecuted"].astype(bool),
     "Code": resultado["temcodigo"],
     "Link": resultado["doiurl"],
-})
+}).reset_index(drop=True)
 
 # A chave muda junto com o conjunto filtrado: a seleção antiga não passa a
 # apontar para outro estudo quando os filtros mudam.
 chave_tabela = "tabela_estudos_" + "_".join(map(str, resultado["studyid"]))
+
+# A tabela nativa só seleciona células; para o clique parecer seleção de
+# linha, a linha da célula clicada (guardada no session_state desde o clique)
+# é pintada inteira de azul-claro.
+estado = st.session_state.get(chave_tabela) or {}
+celulas_antes = (estado.get("selection") or {}).get("cells") or []
+linha_marcada = int(celulas_antes[0][0]) if celulas_antes else None
+tabela_vista = tabela_df.style.apply(
+    lambda r: ["background-color: #DCEBFA" if r.name == linha_marcada else ""] * len(r), axis=1
+)
+
 evento = st.dataframe(
-    tabela_df, hide_index=True,
-    on_select="rerun", selection_mode="single-row", key=chave_tabela,
+    tabela_vista, hide_index=True,
+    on_select="rerun", selection_mode="single-cell", key=chave_tabela,
     column_config={
         "Year": st.column_config.NumberColumn(format="%d", width="small"),
         "Title": st.column_config.TextColumn(width="large"),
@@ -191,9 +205,9 @@ evento = st.dataframe(
     },
 )
 st.caption(
-    "Click a row to see the full extraction of that study. Click a column header to sort; "
-    "the icons above the table search, download the filtered table as CSV and open it full "
-    "screen. Filters: any of the options chosen in one filter, and all filters together."
+    "Click a row to see the full extraction of that study. Click a column header "
+    "to sort; the icons above the table search, download the filtered table as CSV and open "
+    "it full screen. Filters: any of the options chosen in one filter, and all filters together."
 )
 
 
@@ -208,8 +222,8 @@ def detalhes(estudo):
     st.markdown(f"#### [{md(str(estudo['title']))}]({estudo['doiurl']})")
     st.caption(md(str(estudo["authors"] or "")))
     st.markdown(
-        ("✓ HE executed" if estudo["heexecuted"] else "– HE not executed") + " · "
-        + (f"[Code available]({estudo['codeurl']})" if estudo["temcodigo"] else "– No code available")
+        "HE operations executed: " + ("Yes" if estudo["heexecuted"] else "No") + " · "
+        + "Code: " + (f"[available]({estudo['codeurl']})" if estudo["temcodigo"] else "not available")
     )
 
     st.markdown("**Problem addressed**")
@@ -242,13 +256,16 @@ def detalhes(estudo):
     st.markdown(md(str(estudo["metricsandvalues"] or "Not reported")))
 
 
-# Abre a janela só quando a linha selecionada muda, para não reabrir a cada
-# interação com os filtros enquanto a mesma linha continua marcada.
-linhas_sel = evento.selection.rows if evento is not None else []
-if linhas_sel:
-    estudo = resultado.iloc[linhas_sel[0]]
-    if st.session_state.get("estudo_aberto") != estudo["studyid"]:
-        st.session_state["estudo_aberto"] = estudo["studyid"]
-        detalhes(estudo)
+# Clique em qualquer célula abre a janela do estudo daquela linha (menos na
+# coluna Link, que já abre o DOI). A janela abre só quando a célula clicada
+# muda, para não reabrir a cada interação com os filtros.
+celulas_sel = list(evento.selection.get("cells", [])) if evento is not None else []
+if celulas_sel:
+    linha, coluna = celulas_sel[0]
+    marca = (int(linha), str(coluna))
+    if st.session_state.get("celula_aberta") != marca:
+        st.session_state["celula_aberta"] = marca
+        if coluna != "Link":
+            detalhes(resultado.iloc[int(linha)])
 else:
-    st.session_state["estudo_aberto"] = None
+    st.session_state["celula_aberta"] = None

@@ -10,10 +10,19 @@ import streamlit as st
 
 from db import run_query
 from estilo import (AZUL, CINZA, TITULO, cabecalho, cartoes, grafico, layout_grafico,
-                    pontos_clicados, rodape, secao)
+                    pontos_clicados, secao)
 from graficos import contagem, matriz, mostrar_selecao, total_estudos
 
-cabecalho(4, "Validation", "How have the proposals been validated, and which parts?")
+cabecalho(
+    4, "Validation", "How have the proposals been validated, and which parts?",
+    descricao=(
+        "The validation approach is how each study assesses its proposal: analytical "
+        "evaluation, simulation, execution on virtual machines or on a general-purpose "
+        "computer, on embedded or UAV-representative hardware, or a field test with a real "
+        "UAV. Each approach is also split by whether the HE operations were actually executed "
+        "or only proposed or estimated."
+    ),
+)
 
 total = total_estudos()
 abordagens = contagem("Validation approach")
@@ -24,13 +33,31 @@ nao_informado = set(abordagens.loc[abordagens["isnotinformed"], "value"])
 # VIEW: VwKpi — quantos executaram HE
 executados = int(run_query("SELECT HEExecuted FROM VwKpi").iloc[0]["heexecuted"])
 
+# Hardware embarcado ou voo real (cada estudo uma vez), quantos destes também
+# voaram, e quantos estudos de simulação não têm nenhum dos dois
+EMBARCADO = ("'Embedded/UAV-representative hardware', 'Field test or real flight'")
+hardware = run_query(
+    f"""
+    WITH Real AS (
+        SELECT DISTINCT StudyId FROM ValidatedBy
+        WHERE ValidationApproachName IN ({EMBARCADO})
+    )
+    SELECT (SELECT COUNT(*) FROM Real) AS Real,
+           (SELECT COUNT(DISTINCT StudyId) FROM ValidatedBy
+            WHERE ValidationApproachName = 'Field test or real flight') AS Voo,
+           (SELECT COUNT(DISTINCT StudyId) FROM ValidatedBy
+            WHERE ValidationApproachName = 'Simulation'
+              AND StudyId NOT IN (SELECT StudyId FROM Real)) AS SoSimulacao
+    """
+).iloc[0]
+
 
 # ===========================================================================
 # Estudos por abordagem, divididos em HE executado ou não
 # ===========================================================================
 secao("Studies by validation approach",
-      "Every approach each study used, split by whether the HE operations were actually "
-      "executed. A study can count in several bars.")
+      "Number of studies per validation approach, split by whether the HE operations were "
+      "actually executed. A study can use several approaches.")
 
 # VIEWS: VwStudyFacet (abordagens de cada estudo) e VwStudyOverview (HE executado)
 por_abordagem = run_query(
@@ -109,12 +136,14 @@ with texto_col:
         {"rotulo": "HE operations executed", "numero": f"{executados} of {total}",
          "texto": "Encryption, homomorphic evaluation and decryption actually ran; "
                   "the others only proposed or estimated them."},
-        {"rotulo": "Embedded or UAV hardware",
-         "numero": f"{int(n_abordagem.get('Embedded/UAV-representative hardware', 0))} of {total}",
-         "texto": "Code ran on a single-board or companion computer, such as a Raspberry Pi."},
-        {"rotulo": "Real flight",
-         "numero": f"{int(n_abordagem.get('Field test or real flight', 0))} of {total}",
-         "texto": "A real UAV flew during the evaluation."},
+        {"rotulo": "Simulation",
+         "numero": f"{int(n_abordagem.get('Simulation', 0))} of {total}",
+         "texto": f"The most used approach. {int(hardware['sosimulacao'])} of these studies have "
+                  "no test on embedded hardware or in a real flight."},
+        {"rotulo": "Embedded hardware or real flight",
+         "numero": f"{int(hardware['real'])} of {total}",
+         "texto": "Code ran on UAV-representative hardware, such as a Raspberry Pi; "
+                  f"{int(hardware['voo'])} of these studies also flew a real UAV."},
     ], colunas=1)
 st.caption(
     "Bar length: studies that used the approach. Solid: HE operations executed; hatched: "
@@ -127,7 +156,7 @@ mostrar_selecao("rq4_abordagem")
 # Abordagem de validação x família HE
 # ===========================================================================
 secao("Validation by HE family",
-      "Which families of HE schemes were validated with each approach.")
+      "Number of studies per validation approach and family of the HE scheme adopted.")
 
 # VIEW: VwFacetCross — estudos por (abordagem de validação, família HE)
 celulas = run_query(
