@@ -21,8 +21,12 @@ SUAVE = "#718096"
 BORDA = "#E2E8F0"
 FUNDO_CARTAO = "#F7FAFC"
 
-# Cor de cada família de esquema HE, igual ao gráfico por ano dos slides
+# Cor de cada família de esquema HE, igual ao gráfico por ano dos slides.
+# As barras usam a mesma cor no preenchimento e na borda.
 CORES_FAMILIA = {"PHE": AZUL, "FHE": VERDE, "SHE": LARANJA, "Not determined": CINZA}
+BORDAS_FAMILIA = CORES_FAMILIA
+# Tom claro de cada família, para fundos (etiquetas de biblioteca na RQ3)
+CORES_FAMILIA_CLARO = {"PHE": "#DCEBFA", "FHE": "#DDF3E4", "SHE": "#FCE5D3", "Not determined": "#EDF2F7"}
 
 DRONE = Path(__file__).resolve().parent / "assets" / "drone.png"
 
@@ -74,6 +78,10 @@ _CSS = f"""
   font-family: 'Poppins', sans-serif; font-weight: 700; color: {TITULO};
   font-size: 1.55rem; line-height: 1.3; margin: 1.6rem 0 .4rem 0;
 }}
+.msl-sec-sub {{
+  font-family: 'Inter', sans-serif; font-size: .98rem; color: {TEXTO};
+  margin: -.1rem 0 .8rem 0; max-width: 60rem;
+}}
 
 /* Cartões: fundo cinza-claro e borda fina, sem faixa colorida.
    Grade com número fixo de colunas, que cai para 2 e 1 em telas estreitas. */
@@ -96,7 +104,26 @@ _CSS = f"""
   line-height: 1.25; color: {AZUL}; margin: .15rem 0 .25rem 0;
 }}
 .msl-cartao.laranja .numero {{ color: {LARANJA}; }}
+.msl-cartao .marca {{
+  display: inline-block; width: .7rem; height: .7rem; border-radius: 3px;
+  margin-right: .45rem; vertical-align: -.05rem;
+}}
 .msl-cartao .texto {{ font-family: 'Inter', sans-serif; font-size: .88rem; color: {TEXTO}; line-height: 1.45; }}
+
+/* Esquemas dentro do cartão da família, com as bibliotecas como etiquetas */
+.msl-cartao .esquema {{ margin: .7rem 0 0 0; }}
+.msl-cartao .esquema .nome {{
+  font-family: 'Poppins', sans-serif; font-weight: 600; font-size: .95rem; color: {TITULO};
+}}
+.msl-cartao .esquema .n {{ font-family: 'Inter', sans-serif; font-size: .8rem; color: {SUAVE}; }}
+.msl-cartao .etiquetas {{ display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .3rem; }}
+.msl-cartao .etiqueta {{
+  font-family: 'Inter', sans-serif; font-size: .78rem; font-weight: 500; color: {TITULO};
+  padding: .1rem .55rem; border-radius: 999px;
+}}
+.msl-cartao .etiqueta.vazia {{
+  font-weight: 400; color: {SUAVE}; border: 1px dashed #CBD5E0; background: transparent;
+}}
 
 /* Tabela simples: cabeçalho em cinza-claro, linhas separadas por borda fina */
 .msl-tabela {{ border-collapse: collapse; font-family: 'Inter', sans-serif; font-size: .95rem; margin-top: .3rem; }}
@@ -176,9 +203,10 @@ def cabecalho(numero, titulo, pergunta, posicao_menu=2):
             f'<h1>{_e(titulo)}</h1><p class="pergunta">{_e(pergunta)}</p></div>')
 
 
-def secao(titulo):
-    """Título de seção."""
-    st.html(f'<div class="msl-sec">{_e(titulo)}</div>')
+def secao(titulo, subtitulo=None):
+    """Título de seção, com um subtítulo opcional logo abaixo."""
+    sub = f'<p class="msl-sec-sub">{_e(subtitulo)}</p>' if subtitulo else ""
+    st.html(f'<div class="msl-sec">{_e(titulo)}</div>{sub}')
 
 
 def cartoes(itens, colunas=4):
@@ -187,12 +215,17 @@ def cartoes(itens, colunas=4):
     cor='laranja' para destacar o número (padrão azul)."""
     blocos = []
     for i in itens:
-        partes = [f'<div class="rotulo">{_e(i["rotulo"])}</div>']
+        # cor em hexadecimal: número nessa cor e um quadradinho dela antes do rótulo
+        hexa = i.get("cor", "") if str(i.get("cor", "")).startswith("#") else ""
+        marca = f'<span class="marca" style="background:{hexa}"></span>' if hexa else ""
+        estilo_num = f' style="color:{SUAVE if hexa == CINZA else hexa}"' if hexa else ""
+        partes = [f'<div class="rotulo">{marca}{_e(i["rotulo"])}</div>']
         if "numero" in i:
-            partes.append(f'<div class="numero">{_e(i["numero"])}</div>')
+            partes.append(f'<div class="numero"{estilo_num}>{_e(i["numero"])}</div>')
         if i.get("texto"):
             partes.append(f'<div class="texto">{_e(i["texto"])}</div>')
-        blocos.append(f'<div class="msl-cartao {i.get("cor", "")}">{"".join(partes)}</div>')
+        classe_cor = "" if hexa else i.get("cor", "")
+        blocos.append(f'<div class="msl-cartao {classe_cor}">{"".join(partes)}</div>')
     classe = {1: "c1", 2: "c2", 3: "c3"}.get(colunas, "")
     st.html(f'<div class="msl-grade {classe}">{"".join(blocos)}</div>')
 
@@ -202,6 +235,32 @@ def tabela(cabecalho, linhas):
     th = "".join(f"<th>{_e(c)}</th>" for c in cabecalho)
     tr = "".join("<tr>" + "".join(f"<td>{_e(c)}</td>" for c in l) + "</tr>" for l in linhas)
     st.html(f'<table class="msl-tabela"><thead><tr>{th}</tr></thead><tbody>{tr}</tbody></table>')
+
+
+def cartoes_esquemas(familias):
+    """Um cartão por família, com seus esquemas e as bibliotecas como etiquetas.
+    familias: lista de dicts {nome, cor, claro, esquemas}, onde cada esquema é
+    {nome, studies, bibliotecas} e cada biblioteca é {rotulo, n, informada}.
+    Biblioteca não informada (Not reported / Not applicable) vira etiqueta tracejada."""
+    blocos = []
+    for f in familias:
+        corpo = [f'<div class="rotulo"><span class="marca" style="background:{f["cor"]}"></span>'
+                 f'{_e(f["nome"])}</div>']
+        for e in f["esquemas"]:
+            n = int(e["studies"])
+            etiquetas = []
+            for b in e["bibliotecas"]:
+                vezes = f' ×{int(b["n"])}' if b["n"] > 1 else ""
+                if b["informada"]:
+                    etiquetas.append(f'<span class="etiqueta" style="background:{f["claro"]}">'
+                                     f'{_e(b["rotulo"])}{vezes}</span>')
+                else:
+                    etiquetas.append(f'<span class="etiqueta vazia">{_e(b["rotulo"])}{vezes}</span>')
+            corpo.append(f'<div class="esquema"><span class="nome">{_e(e["nome"])}</span> '
+                         f'<span class="n">· {n} {"study" if n == 1 else "studies"}</span>'
+                         f'<div class="etiquetas">{"".join(etiquetas)}</div></div>')
+        blocos.append(f'<div class="msl-cartao">{"".join(corpo)}</div>')
+    st.html(f'<div class="msl-grade">{"".join(blocos)}</div>')
 
 
 def nota(texto):

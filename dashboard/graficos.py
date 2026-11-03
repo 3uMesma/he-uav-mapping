@@ -3,6 +3,8 @@ Gráficos que se repetem nas páginas: barras, matriz de blocos arredondados e a
 lista de estudos que aparece ao clicar.
 
 Toda contagem chega pronta das views (com a coluna StudyIds); aqui só se desenha.
+Cada gráfico tem uma chave; o clique guarda a seleção em
+st.session_state["sel_<chave>"] e mostrar_selecao(chave) lista os estudos.
 """
 import textwrap
 
@@ -44,6 +46,11 @@ def mostrar_selecao(chave):
         lista_estudos(estudos_por_id(sel["ids"]), f'{sel["rotulo"]}: {len(sel["ids"])} studies')
 
 
+def mostrar(fig):
+    """Gráfico sem clique para listar estudos (ex.: icicle, que tem zoom próprio)."""
+    st.plotly_chart(fig, theme=None, config={"displayModeBar": False})
+
+
 def _quebra(texto, largura=16):
     return "<br>".join(textwrap.wrap(str(texto), largura))
 
@@ -51,17 +58,20 @@ def _quebra(texto, largura=16):
 # ---------------------------------------------------------------------------
 # Barras horizontais: uma opção por linha, mais frequente no topo
 # ---------------------------------------------------------------------------
-def barras(chave, df, total=None):
+def barras(chave, df, total=None, cores=None):
     """df: colunas value, studies, isnotinformed, studyids (como em VwFacetCount).
     Opções "não informado" ficam em cinza e por último. total, se dado, aparece
-    no hover como "n of total"."""
+    no hover como "n of total". cores: dict opção -> cor (padrão: azul)."""
+    cores = cores or {}
     df = df.sort_values(["isnotinformed", "studies"], ascending=[True, False])
     ordem = list(df["value"])[::-1]          # Plotly desenha o primeiro y embaixo
     df = df.set_index("value").loc[ordem].reset_index()
 
     fig = go.Figure(go.Bar(
         x=df["studies"], y=df["value"], orientation="h",
-        marker=dict(color=[CINZA if n else AZUL for n in df["isnotinformed"]], cornerradius=4),
+        marker=dict(color=[CINZA if n else cores.get(v, AZUL)
+                           for v, n in zip(df["value"], df["isnotinformed"])],
+                    cornerradius=4),
         text=df["studies"], textposition="outside", cliponaxis=False,
         textfont=dict(family="Inter, sans-serif", size=12, color=TITULO),
         hovertemplate="<b>%{y}</b><br>%{x} " + (f"of {total} " if total else "") +
@@ -109,6 +119,8 @@ def matriz(chave, linhas, colunas, celulas, largura_maxima=1000, cinza=()):
     n_cel = {(a, c): n_de(a, c) for a in linhas_y for c in colunas}
     maior = max([n for k, n in n_cel.items() if k not in cinza] + [1])
 
+    # O caminho do bloco é medido em unidades de categoria; os raios convertem
+    # 9 px para essas unidades, com a largura estimada de cada coluna.
     fracao = min(1.0, 0.3 + 0.1 * len(colunas))
     raio_y = 9 / ALTURA_LINHA
     raio_x = 9 / (largura_maxima * fracao / len(colunas))
@@ -127,9 +139,9 @@ def matriz(chave, linhas, colunas, celulas, largura_maxima=1000, cinza=()):
         mode="markers+text", showlegend=False,
         text=[str(n) if n else "·" for _, _, n in pontos],
         textfont=dict(family="Inter, sans-serif", size=13,
-                         color=["white" if n > maior / 2 and (a, c) not in cinza
-                         else (TITULO if n else "#CBD5E0")
-                         for a, c, n in pontos]),
+                      color=["white" if n > maior / 2 and (a, c) not in cinza
+                             else (TITULO if n else "#CBD5E0")
+                             for a, c, n in pontos]),
         marker=dict(size=34, symbol="square", color="rgba(0,0,0,0)"),
         customdata=[n for _, _, n in pontos],
         hovertemplate="<b>%{y}</b><br>%{x}<br>%{customdata} studies<extra></extra>",

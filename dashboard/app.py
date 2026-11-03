@@ -1,7 +1,9 @@
 """
 Ponto de entrada do dashboard: configuração da página e menu lateral.
 
-Cada página fica em paginas/ e é registrada aqui.
+Cada página fica em paginas/ e é registrada aqui. Para rodar:
+    streamlit run dashboard/app.py
+ou, com Docker, o serviço "dashboard" do docker-compose.yml.
 """
 import psycopg2
 import streamlit as st
@@ -35,6 +37,8 @@ paginas = {
     ":material/manage_search: Research questions": [
         st.Page("paginas/rq1.py", title="RQ1 · Research type", icon=":material/science:"),
         st.Page("paginas/rq2.py", title="RQ2 · UAV applications", icon=":material/category:"),
+        st.Page("paginas/rq3.py", title="RQ3 · HE schemes and libraries", icon=":material/key:"),
+        st.Page("paginas/rq4.py", title="RQ4 · Validation", icon=":material/fact_check:"),
     ],
 }
 
