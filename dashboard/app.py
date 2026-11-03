@@ -13,7 +13,6 @@ from estilo import aplicar_estilo
 
 st.set_page_config(
     page_title="HE in UAVs: systematic mapping",
-    page_icon=":material/flight:",
     layout="wide",
 )
 aplicar_estilo()
@@ -33,6 +32,7 @@ except psycopg2.OperationalError as erro:
 paginas = {
     "": [
         st.Page("paginas/visao_geral.py", title="Overview", icon=":material/dashboard:", default=True),
+        st.Page("paginas/estudos.py", title="Studies", icon=":material/table_rows:"),
     ],
     ":material/manage_search: Research questions": [
         st.Page("paginas/rq1.py", title="RQ1 · Research type"),
@@ -41,6 +41,7 @@ paginas = {
         st.Page("paginas/rq4.py", title="RQ4 · Validation"),
         st.Page("paginas/rq5.py", title="RQ5 · Where and when HE runs"),
         st.Page("paginas/rq6.py", title="RQ6 · Costs and baselines"),
+        st.Page("paginas/rq7.py", title="RQ7 · Threat model"),
     ],
 }
 

@@ -30,7 +30,11 @@ abertura(
     "Homomorphic encryption in UAVs:<br>applications, schemes and costs",
     f"Interactive companion to the systematic mapping study. Explore the {total} "
     "primary studies by research question, and from any number get to the studies behind it.",
-    "Amanda Kasat Baltor · Advisor: Prof. Dr. Kalinka Castelo Branco · ICMC/USP",
+        "Amanda Kasat Baltor · Advisor: Prof. Dr. Kalinka Castelo Branco · ICMC/USP",
+    orcids={
+        "Amanda Kasat Baltor": "https://orcid.org/0009-0004-0709-4625",
+        "Kalinka Castelo Branco": "https://orcid.org/0000-0001-6816-208X",
+    },
 )
 
 secao("The mapping in numbers")

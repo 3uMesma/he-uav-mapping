@@ -51,6 +51,14 @@ _CSS = f"""
 .msl-hero .sub {{ font-family: 'Inter', sans-serif; color: {TEXTO}; font-size: 1.05rem; margin: 0 0 .6rem 0; }}
 .msl-hero .autoria {{ font-family: 'Inter', sans-serif; color: {SUAVE}; font-size: .95rem; }}
 
+/* Ícone do ORCID (o "iD" verde) depois do nome, com link para o perfil */
+.msl-hero .orcid {{
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%; margin-left: 5px; vertical-align: 1px;
+  background: #A6CE39; color: #FFFFFF !important; text-decoration: none !important;
+  font-family: 'Inter', sans-serif; font-size: 8.5px; font-weight: 700; letter-spacing: -.02em;
+}}
+
 /* Menu do topo: página atual e seção atual em azul-claro, com texto azul.
    Os data-testid vêm do próprio Streamlit (TopNav). */
 [data-testid="stTopNavLink"][aria-current="page"],
@@ -166,15 +174,18 @@ def aplicar_estilo():
 def _e(texto):
     return html.escape(str(texto))
 
-
-def abertura(titulo, subtitulo, autoria):
-    """Título grande em azul, como a capa dos slides, com o drone ao lado."""
+def abertura(titulo, subtitulo, autoria, orcids=None):
+    linha = _e(autoria)
+    for nome, link in (orcids or {}).items():
+        icone = (f'<a class="orcid" href="{_e(link)}" target="_blank" '
+                 f'title="ORCID: {_e(link.rstrip("/").split("/")[-1])}">iD</a>')
+        linha = linha.replace(_e(nome), _e(nome) + icone, 1)
     texto, imagem = st.columns([4, 1], vertical_alignment="center")
     with texto:
         st.html(
             f'<div class="msl-hero"><h1>{titulo}</h1>'
             f'<p class="sub">{subtitulo}</p>'
-            f'<p class="autoria">{_e(autoria)}</p></div>'
+            f'<p class="autoria">{linha}</p></div>'
         )
     with imagem:
         st.image(str(DRONE), width=220)
@@ -195,7 +206,7 @@ def destacar_secao_menu(posicao):
 </style>""")
 
 
-def cabecalho(numero, titulo, pergunta, posicao_menu=2):
+def cabecalho(numero, titulo, pergunta, posicao_menu=3):
     """Topo das páginas de RQ: "Research Question: 01", o título e a pergunta.
     Também destaca a seção "Research questions" no menu do topo."""
     destacar_secao_menu(posicao_menu)
