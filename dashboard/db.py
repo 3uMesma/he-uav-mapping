@@ -26,6 +26,9 @@ DB_CONFIG = {
     # Bancos gerenciados (ex.: Neon) exigem conexão cifrada: DB_SSLMODE=require.
     # Localmente, "prefer" usa SSL se o servidor oferecer e segue sem se não houver.
     "sslmode": os.getenv("DB_SSLMODE", "prefer"),
+    # Sem resposta do banco em 15 s, desiste e mostra o erro (em vez de a
+    # página ficar carregando para sempre)
+    "connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "15")),
 }
 
 
@@ -52,7 +55,16 @@ def _executa(sql, params):
 
 @st.cache_data(ttl=600, show_spinner=False)
 def run_query(sql, params=None):
-    """Executa um SELECT explícito e devolve um DataFrame."""
+    """Executa um SELECT explícito e devolve um DataFrame.
+
+    Os nomes das colunas chegam em minúsculas, como o PostgreSQL os guarda
+    (ex.: VwKpi.FirstYear vira 'firstyear'). Arrays (StudyIds) chegam como
+    listas e JSONB (Facets, Schemes) como dicionários.
+
+    O resultado fica em cache por 10 minutos: os dados só mudam quando a carga
+    é refeita. Se a conexão tiver caído (ex.: o container do banco reiniciou),
+    abre outra e tenta de novo uma vez.
+    """
     try:
         return _executa(sql, params)
     except (psycopg2.OperationalError, psycopg2.InterfaceError):

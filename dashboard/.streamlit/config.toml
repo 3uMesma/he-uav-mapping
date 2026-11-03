@@ -1,9 +1,12 @@
-# Configuração do Streamlit para o dashboard.
+# Configuração do Streamlit para o site publicado (Streamlit Community Cloud).
+# O Docker local usa dashboard/.streamlit/config.toml.
 
 [server]
 headless = true
-runOnSave = true
-fileWatcherType = "poll"
+# No Community Cloud o código só muda com push (o app reinicia sozinho),
+# então não há arquivo para vigiar: "none" evita o custo do polling.
+runOnSave = false
+fileWatcherType = "none"
 
 [client]
 # Esconde o botão "Deploy" e o menu de desenvolvimento
