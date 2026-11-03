@@ -35,10 +35,11 @@ paginas = {
         st.Page("paginas/visao_geral.py", title="Overview", icon=":material/dashboard:", default=True),
     ],
     ":material/manage_search: Research questions": [
-        st.Page("paginas/rq1.py", title="RQ1 · Research type", icon=":material/science:"),
-        st.Page("paginas/rq2.py", title="RQ2 · UAV applications", icon=":material/category:"),
-        st.Page("paginas/rq3.py", title="RQ3 · HE schemes and libraries", icon=":material/key:"),
-        st.Page("paginas/rq4.py", title="RQ4 · Validation", icon=":material/fact_check:"),
+        st.Page("paginas/rq1.py", title="RQ1 · Research type"),
+        st.Page("paginas/rq2.py", title="RQ2 · UAV applications"),
+        st.Page("paginas/rq3.py", title="RQ3 · HE schemes and libraries"),
+        st.Page("paginas/rq4.py", title="RQ4 · Validation"),
+        st.Page("paginas/rq5.py", title="RQ5 · Where and when HE runs"),
     ],
 }
 
